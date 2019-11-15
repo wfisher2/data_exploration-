@@ -1,0 +1,75 @@
+---
+title: "Model"
+author: "William Fisher"
+date: "11/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ProjectTemplate)
+load.project()
+```
+
+```{r}
+install.packages("devtools")
+devtools::install_github("cardiomoon/ggiraphExtra")
+
+library(ggiraphExtra)
+```
+
+
+Read data
+```{r}
+Clean_data = read_rds("data/clean_data_1.Rds")
+```
+
+
+Correlation between CPIA and GDP
+```{r}
+cor.test(
+    x = Clean_data$CPIA_mean, y = Clean_data$GDP
+)
+```
+
+Linear Model with 1 variable
+```{r}
+model_1 = lm(GDP ~ CPIA_mean, data = Clean_data)
+summary(model_1)
+
+
+ggPredict(model_1,se=TRUE,interactive=TRUE)
+```
+
+Linear Model with 2 variable just create new prdicted variable
+```{r}
+model_2 = lm(GDP ~ CPIA_mean + Savings + Imports, data = Clean_data)
+summary(model_2)
+
+
+ggPredict(model_2)
+```
+
+
+```{r}
+Linear_Model_1 = lm(GDP ~ CPIA_mean, data = Clean_data)
+summary(Linear_Model_1)
+
+ggplot(
+  data = Clean_data, mapping = aes(
+    x = CPIA_mean, y = GDP, colour = Country
+  )
+) +
+  geom_point() +
+  geom_abline(intercept = 823.45, slope = 62.21) +
+  theme_minimal()
+
+ggsave(filename = "graphs/Explore/GDP-CPIA.jpeg", 
+       device = "jpeg", 
+       height = 8, 
+       width = 16)
+```
+
+```{r}
+```
+

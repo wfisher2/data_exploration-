@@ -1,0 +1,75 @@
+---
+title: "Explore"
+author: "William Fisher"
+date: "11/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ProjectTemplate)
+load.project()
+```
+
+Reading in data
+```{r}
+Clean_data = read_rds(path = "data/clean_data.Rds")
+```
+
+New variable
+```{r}
+Clean_data$CPIA_cuts = cut_width(x = Clean_data$CPIA_mean, width = 0.5)
+```
+
+
+Summary statistics
+```{r}
+as.table(summary(Clean_data))
+```
+
+Summary Graph - CPIA
+```{r}
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = CPIA_mean
+  )
+) +
+  geom_histogram(binwidth = 0.2) +
+  theme_minimal() +
+  labs(title = "Histogram of mean CPIA ratings") +
+  xlab("CPIA mean") +
+  ylab("Obervations")
+
+ggsave(filename = "graphs/Summary/Mean_CPIA.jpeg", 
+       device = "jpeg", 
+       height = 8, 
+       width = 16)
+```
+
+Summary Graph - GDP
+```{r}
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = GDP,
+    fill = CPIA_cuts
+  )
+) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Histogram of mean GDP per capita") +
+  xlab("GDP per capita") +
+  ylab("Obervations")
+
+ggsave(filename = "graphs/Summary/GDP_pc.jpeg", 
+       device = "jpeg", 
+       height = 8, 
+       width = 16)
+```
+
+Saving data
+```{r}
+Clean_data %>% 
+  write_rds("data/clean_data_1.Rds")
+```
