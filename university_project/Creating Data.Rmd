@@ -1,0 +1,133 @@
+---
+title: "Creating data set"
+author: "William John Fisher"
+date: "04/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ProjectTemplate)
+load.project()
+```
+
+Data
+```{r}
+world_bank_indicators = read_csv("data/World Development Indicators.csv")
+```
+
+Clean WB data
+```{r}
+world_bank_indicators = world_bank_indicators %>% 
+  select(
+    Country = 'Country Name', Time, Series = 'Series Name', Value
+  ) %>% 
+  drop_na(Country)
+
+world_bank_indicators <- spread(world_bank_indicators, Series, Value)
+```
+
+Add in African Development Bank data
+```{r}
+
+```
+
+Convert into table
+```{r}
+Clean_data = world_bank_indicators %>%
+  mutate(
+    Country = world_bank_indicators$Country,
+    Year = world_bank_indicators$Time,
+    Exports = as.numeric(
+      world_bank_indicators$`Exports of goods and services (constant 2010 US$)`
+    ),
+    FDI = as.numeric(
+      world_bank_indicators$`Foreign direct investment, net inflows (% of GDP)`
+    ),
+    GDP = as.numeric(world_bank_indicators$`GDP per capita (constant 2010 US$)`),
+    Capital = as.numeric(
+      world_bank_indicators$`Gross fixed capital formation (constant 2010 US$)`
+    ),
+    Savings = as.numeric(world_bank_indicators$`Gross savings (% of GDP)`),
+    Imports = as.numeric(
+      world_bank_indicators$`Imports of goods and services (constant 2010 US$)`
+    ),
+    Inflation = as.numeric(world_bank_indicators$`Inflation, consumer prices (annual %)`),
+    Aid = as.numeric(
+      world_bank_indicators$`Net official aid received (constant 2015 US$)`
+    ),
+    Remitances = as.numeric(
+      world_bank_indicators$`Personal remittances, received (% of GDP)`
+    ),
+    Population_growth = as.numeric(world_bank_indicators$`Population growth (annual %)`),
+    Population = as.numeric(world_bank_indicators$`Population, total`))
+
+Clean_data = Clean_data %>% 
+  select(
+      Country,
+      Year,
+      Exports,
+      FDI,
+      GDP,
+      Capital,
+      Savings,
+      Imports,
+      Inflation,
+      Aid,
+      Remitances,
+      Population,
+      Population_growth
+    )
+```
+
+Summary statistics
+```{r}
+as.table(summary(Clean_data))
+
+Clean_data_correlation = Clean_data %>%  
+  select(-Year, -Country, -Aid) %>% 
+  drop_na()
+
+cor(Clean_data_correlation)
+```
+
+
+Graphical plotting
+```{r}
+ggplot(
+  data = Clean_data, mapping = aes(
+    x = Imports, y = GDP, colour = Country
+  )
+) +
+  geom_point() +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+ggsave(filename = "graphs/graph_1.jpeg", 
+       device = "jpeg", 
+       height = 10, 
+       width = 20)
+```
+
+Linear Model
+```{r}
+Linear_Model_1 = lm(GDP ~ Capital, data = Clean_data)
+summary(Linear_Model_1)
+
+ggplot(
+  data = Clean_data, mapping = aes(
+    x = log(Capital), y = log(GDP)
+  )
+) +
+  geom_smooth(method = 'lm') +
+  geom_point(mapping = aes(colour = Country)) +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+ggsave(filename = "graphs/graph_2.jpeg", 
+       device = "jpeg", 
+       height = 10, 
+       width = 20)
+```
+
+
