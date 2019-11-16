@@ -21,10 +21,9 @@ New variable
 Clean_data$CPIA_cuts = cut_width(x = Clean_data$CPIA_mean, width = 0.5)
 ```
 
-
 Summary statistics
 ```{r}
-as.table(summary(Clean_data))
+summary(Clean_data)
 ```
 
 Summary Graph - CPIA
@@ -32,7 +31,7 @@ Summary Graph - CPIA
 ggplot(
   data = Clean_data, 
   mapping = aes(
-    x = CPIA_mean
+    x = CPIA_Mean
   )
 ) +
   geom_histogram(binwidth = 0.2) +
@@ -47,26 +46,88 @@ ggsave(filename = "graphs/Summary/Mean_CPIA.jpeg",
        width = 16)
 ```
 
+CPIA over time
+```{r}
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = Year, y = CPIA_Mean, colour = Country
+  )
+) +
+  geom_smooth(se = FALSE) +
+  theme_minimal() +
+  labs(title = "Histogram of mean CPIA ratings") +
+  xlab("Year") +
+  ylab("Mean of CPIA")
+
+ggsave(filename = "graphs/Summary/Mean_CPIA_by_Country.jpeg", 
+       device = "jpeg", 
+       height = 8, 
+       width = 16)
+```
+
 Summary Graph - GDP
 ```{r}
 ggplot(
   data = Clean_data, 
   mapping = aes(
-    x = GDP,
-    fill = CPIA_cuts
+    x = Year, y = GDP, colour = Country
   )
 ) +
-  geom_histogram() +
+  geom_smooth(se = FALSE) +
   theme_minimal() +
-  labs(title = "Histogram of mean GDP per capita") +
-  xlab("GDP per capita") +
-  ylab("Obervations")
+  labs(title = "Histogram of mean CPIA ratings") +
+  xlab("Year") +
+  ylab("GDP per capita")
 
-ggsave(filename = "graphs/Summary/GDP_pc.jpeg", 
+ggsave(filename = "graphs/Summary/GDP_by_Country.jpeg", 
        device = "jpeg", 
        height = 8, 
        width = 16)
 ```
+
+Summary Graph - GDP
+```{r}
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = log(Aid), y = log(GDP)
+  )
+) +
+  geom_jitter(mapping = aes(colour = Country)) +
+  geom_smooth() +
+  theme_minimal() +
+  labs(title = "Aid against GDP") +
+  xlab("Aid") +
+  ylab("GDP")
+
+ggsave(filename = "graphs/Summary/GDP_Aid.jpeg", 
+       device = "jpeg", 
+       height = 8, 
+       width = 16)
+```
+
+Summary Graph - GDP
+```{r}
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = log(Aid), y = log(GDP_growth)
+  )
+) +
+  geom_jitter(mapping = aes(colour = Country)) +
+  geom_smooth() +
+  theme_minimal() +
+  labs(title = "Aid against GDP") +
+  xlab("Log Aid") +
+  ylab("Log GDP Growth")
+
+ggsave(filename = "graphs/Summary/GDP_Aid.jpeg", 
+       device = "jpeg", 
+       height = 8, 
+       width = 16)
+```
+
 
 Saving data
 ```{r}

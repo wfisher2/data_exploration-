@@ -44,16 +44,6 @@ Left Join
 Clean_data = inner_join(cpia_data, world_bank_indicators)
 ```
 
-Create new variables
-```{r}
-Clean_data = Clean_data %>% 
-  mutate(
-    group_by(Country) %>% 
-    arrange(Year, .by_group = TRUE) %>%
-    mutate(GDP_pct_change = (GDP/lag(GDP) - 1) * 100)
-  )
-```
-
 Convert into table
 ```{r}
 Clean_data = Clean_data %>%
@@ -122,11 +112,22 @@ Clean_data = Clean_data %>%
       CPIA_SP
     )
 
-Clean_data$CPIA_mean = (Clean_data$CPIA_EM + Clean_data$CPIA_SIE + Clean_data$CPIA_PSMI + Clean_data$CPIA_SP) / 4
+Clean_data = Clean_data %>% 
+  mutate(
+    CPIA_Mean = (CPIA_EM + CPIA_SIE + CPIA_PSMI + CPIA_SP) / 4
+  )
 ```
 
+Create GDP Growth
+```{r}
+Clean_data = Clean_data %>%
+group_by(Country) %>%
+mutate(Future_GDP = lead(GDP, order_by=Year)
+)
 
-
+Clean_data = Clean_data %>% 
+  mutate(GDP_growth = ((Future_GDP - GDP)/GDP)*100)
+```
 
 Savings clean data
 ```{r}

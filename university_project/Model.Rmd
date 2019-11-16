@@ -21,7 +21,7 @@ library(ggiraphExtra)
 
 Read data
 ```{r}
-Clean_data = read_rds("data/clean_data_1.Rds")
+Clean_data = read_rds("data/clean_data.Rds")
 ```
 
 
