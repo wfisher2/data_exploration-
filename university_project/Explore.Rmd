@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(ProjectTemplate)
 load.project()
+library(knitr)
 ```
 
 Reading in data
@@ -16,14 +17,15 @@ Reading in data
 Clean_data = read_rds(path = "data/clean_data.Rds")
 ```
 
-New variable
+Drop observations that don't have the variables we want
 ```{r}
-Clean_data$CPIA_cuts = cut_width(x = Clean_data$CPIA_mean, width = 0.5)
+Clean_data = Clean_data %>% 
+  drop_na()
 ```
 
 Summary statistics
 ```{r}
-summary(Clean_data)
+kable(summary(Clean_data))
 ```
 
 Summary Graph - CPIA
@@ -40,10 +42,10 @@ ggplot(
   xlab("CPIA mean") +
   ylab("Obervations")
 
-ggsave(filename = "graphs/Summary/Mean_CPIA.jpeg", 
-       device = "jpeg", 
-       height = 8, 
-       width = 16)
+ggsave(filename = "graphs/mean_CPIA.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
 ```
 
 CPIA over time
@@ -51,19 +53,20 @@ CPIA over time
 ggplot(
   data = Clean_data, 
   mapping = aes(
-    x = Year, y = CPIA_Mean, colour = Country
+    x = Year, y = CPIA_Mean 
   )
 ) +
-  geom_smooth(se = FALSE) +
+  geom_smooth() +
+  geom_jitter(mapping = aes(colour = Country)) +
   theme_minimal() +
-  labs(title = "Histogram of mean CPIA ratings") +
+  labs(title = "Mean CPIA ratings, over time") +
   xlab("Year") +
   ylab("Mean of CPIA")
 
-ggsave(filename = "graphs/Summary/Mean_CPIA_by_Country.jpeg", 
-       device = "jpeg", 
-       height = 8, 
-       width = 16)
+ggsave(filename = "graphs/mean_CPIA_over_time.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
 ```
 
 Summary Graph - GDP
@@ -71,19 +74,20 @@ Summary Graph - GDP
 ggplot(
   data = Clean_data, 
   mapping = aes(
-    x = Year, y = GDP, colour = Country
+    x = Year, y = GDP
   )
 ) +
-  geom_smooth(se = FALSE) +
+  geom_smooth() +
+  geom_jitter(mapping = aes(colour = Country)) +
   theme_minimal() +
-  labs(title = "Histogram of mean CPIA ratings") +
+  labs(title = "GDP pc over time") +
   xlab("Year") +
   ylab("GDP per capita")
 
-ggsave(filename = "graphs/Summary/GDP_by_Country.jpeg", 
-       device = "jpeg", 
-       height = 8, 
-       width = 16)
+ggsave(filename = "graphs/GDP_over_time.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
 ```
 
 Summary Graph - GDP
@@ -101,10 +105,10 @@ ggplot(
   xlab("Aid") +
   ylab("GDP")
 
-ggsave(filename = "graphs/Summary/GDP_Aid.jpeg", 
-       device = "jpeg", 
-       height = 8, 
-       width = 16)
+ggsave(filename = "graphs/aid_vs_gdp.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
 ```
 
 Summary Graph - GDP
@@ -122,10 +126,11 @@ ggplot(
   xlab("Log Aid") +
   ylab("Log GDP Growth")
 
-ggsave(filename = "graphs/Summary/GDP_Aid.jpeg", 
-       device = "jpeg", 
-       height = 8, 
-       width = 16)
+ggsave(filename = "graphs/aid_vs_gdp_growth.png",
+       plot = last_plot(),
+       device = "png", 
+       height = 4, 
+       width = 8)
 ```
 
 

@@ -11,35 +11,75 @@ library(ProjectTemplate)
 load.project()
 ```
 
-```{r}
-install.packages("devtools")
-devtools::install_github("cardiomoon/ggiraphExtra")
-
-library(ggiraphExtra)
-```
-
 
 Read data
 ```{r}
-Clean_data = read_rds("data/clean_data.Rds")
+Clean_data = read_rds("data/clean_data_1.Rds")
 ```
 
 
 Correlation between CPIA and GDP
 ```{r}
-cor.test(
-    x = Clean_data$CPIA_mean, y = Clean_data$GDP
-)
+cor.test(x = Clean_data$GDP, y = Clean_data$CPIA_Mean)
 ```
 
-Linear Model with 1 variable
+Linear Model with 1 variable, R-sqaured = 0.0058
 ```{r}
-model_1 = lm(GDP ~ CPIA_mean, data = Clean_data)
+model_1 = lm(GDP_growth ~ CPIA_Mean, data = Clean_data)
+
 summary(model_1)
 
+Clean_data$model_1 = model_1$fitted.values
 
-ggPredict(model_1,se=TRUE,interactive=TRUE)
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = CPIA_Mean
+  )
+) +
+  geom_jitter(mapping = aes(colour = Country, y = model_1)) +
+  geom_jitter(mapping = aes(y = GDP_growth)) +
+  theme_minimal() +
+  labs(title = "Model 1 for predicting GDP growth - Adjusted R-squared:  0.006") +
+  xlab("CPIA Mean") +
+  ylab("GDP Growth") +
+  ylim(-10, 10) 
+
+ggsave(filename = "graphs/model_1.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
 ```
+
+
+Linear Model with all variable, R-sqaured = 0.05467
+```{r}
+model_2 = lm(GDP_growth ~ CPIA_Mean + Exports + FDI + GDP + Capital + Savings + Imports + Inflation + Aid + Remitances + log(Population) + Population_growth, data = Clean_data)
+
+summary(model_2)
+
+Clean_data$model_2 = model_2$fitted.values
+
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = CPIA_Mean
+  )
+) +
+  geom_jitter(mapping = aes(colour = Country, y = model_2)) +
+  geom_jitter(mapping = aes(y = GDP_growth)) +
+  theme_minimal() +
+  labs(title = "Model 2 for predicting GDP growth - Adjusted R-squared:  0.066") +
+  xlab("CPIA Mean") +
+  ylab("GDP Growth") +
+  ylim(-10, 10) 
+
+ggsave(filename = "graphs/model_2.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
+```
+
 
 Linear Model with 2 variable just create new prdicted variable
 ```{r}
@@ -48,28 +88,5 @@ summary(model_2)
 
 
 ggPredict(model_2)
-```
-
-
-```{r}
-Linear_Model_1 = lm(GDP ~ CPIA_mean, data = Clean_data)
-summary(Linear_Model_1)
-
-ggplot(
-  data = Clean_data, mapping = aes(
-    x = CPIA_mean, y = GDP, colour = Country
-  )
-) +
-  geom_point() +
-  geom_abline(intercept = 823.45, slope = 62.21) +
-  theme_minimal()
-
-ggsave(filename = "graphs/Explore/GDP-CPIA.jpeg", 
-       device = "jpeg", 
-       height = 8, 
-       width = 16)
-```
-
-```{r}
 ```
 

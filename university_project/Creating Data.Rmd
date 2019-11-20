@@ -2,7 +2,7 @@
 title: "Creating data set"
 author: "William John Fisher"
 date: "04/11/2019"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
