@@ -2,13 +2,14 @@
 title: "Model"
 author: "William Fisher"
 date: "11/11/2019"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, results = TRUE, message = FALSE)
 library(ProjectTemplate)
 load.project()
+library(knitr)
 ```
 
 
@@ -31,21 +32,21 @@ summary(model_1)
 
 Clean_data$model_1 = model_1$fitted.values
 
-ggplot(
-  data = Clean_data, 
+Clean_data %>% 
+  ggplot(
   mapping = aes(
-    x = CPIA_Mean
+    x = Year
   )
 ) +
   geom_jitter(mapping = aes(colour = Country, y = model_1)) +
-  geom_jitter(mapping = aes(y = GDP_growth)) +
+  geom_jitter(mapping = aes(y = GDP_growth, alpha = 0.01)) +
   theme_minimal() +
   labs(title = "Model 1 for predicting GDP growth - Adjusted R-squared:  0.006") +
   xlab("CPIA Mean") +
   ylab("GDP Growth") +
   ylim(-10, 10) 
 
-ggsave(filename = "graphs/model_1.png", 
+ggsave(filename = "graphs/linear_model_1", 
        device = "png", 
        height = 4, 
        width = 8)
@@ -67,9 +68,9 @@ ggplot(
   )
 ) +
   geom_jitter(mapping = aes(colour = Country, y = model_2)) +
-  geom_jitter(mapping = aes(y = GDP_growth)) +
+  geom_jitter(mapping = aes(y = GDP_growth, alpha = 0.01)) +
   theme_minimal() +
-  labs(title = "Model 2 for predicting GDP growth - Adjusted R-squared:  0.066") +
+  labs(title = "Model 2 for predicting GDP growth - Adjusted R-squared:  0.006") +
   xlab("CPIA Mean") +
   ylab("GDP Growth") +
   ylim(-10, 10) 
@@ -81,12 +82,59 @@ ggsave(filename = "graphs/model_2.png",
 ```
 
 
-Linear Model with 2 variable just create new prdicted variable
+Linear Model with all variable, R-sqaured = 0.0383
 ```{r}
-model_2 = lm(GDP ~ CPIA_mean + Savings + Imports, data = Clean_data)
-summary(model_2)
+model_3 = lm(GDP_growth ~ FDI + log(Population) + Population_growth, data = Clean_data)
 
+summary(model_3)
 
-ggPredict(model_2)
+Clean_data$model_3 = model_3$fitted.values
+
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = CPIA_Mean
+  )
+) +
+  geom_jitter(mapping = aes(colour = Country, y = model_3)) +
+  geom_jitter(mapping = aes(y = GDP_growth, alpha = 0.01)) +
+  theme_minimal() +
+  labs(title = "Model 2 for predicting GDP growth - Adjusted R-squared:  0.038") +
+  xlab("CPIA Mean") +
+  ylab("GDP Growth") +
+  ylim(-10, 10) 
+
+ggsave(filename = "graphs/model_3.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
+```
+
+Does better policy increase the effectiveness of Aid
+```{r}
+Clean_data = Clean_data %>% 
+  mutate(
+    CPIA_aid = CPIA_Mean * Aid,
+    CPIA_cut = cut_width(CPIA_Mean, width = 1)
+  )
+
+ggplot(
+  data = Clean_data, 
+  mapping = aes(
+    x = Aid
+  )
+) +
+  geom_smooth(mapping = aes(colour = CPIA_cut, y = GDP_growth)) +
+  theme_minimal() +
+  labs(title = "Does better policy increase the effectiveness of Aid") +
+  xlab("Aid given PC ($)") +
+  ylab("GDP Growth") +
+  ylim(-10, 10) +
+  xlim(0, 30)
+
+ggsave(filename = "graphs/model_4.png", 
+       device = "png", 
+       height = 4, 
+       width = 8)
 ```
 

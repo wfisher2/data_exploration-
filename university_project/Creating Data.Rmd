@@ -1,23 +1,23 @@
 ---
-title: "Creating data set"
+title: "Creating THE data set"
 author: "William John Fisher"
 date: "04/11/2019"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, results = FALSE, message = FALSE)
 library(ProjectTemplate)
 load.project()
 ```
 
-Data
+Reading in both the World Bank data and the CPIA data, that we want to merge into one
 ```{r}
 world_bank_indicators = read_csv("data/World Development Indicators.csv")
 cpia_data = read_csv("data/CPIA Data.csv")
 ```
 
-Clean WB data
+Cleaning the World Bank Data and turning it from a long format, to a wide format
 ```{r}
 world_bank_indicators = world_bank_indicators %>% 
   select(
@@ -28,7 +28,7 @@ world_bank_indicators = world_bank_indicators %>%
 world_bank_indicators <- spread(world_bank_indicators, Series, Value)
 ```
 
-Clean CPIA data
+Cleaning the CPIA Data and turning it from a long format, to a wide format
 ```{r}
 cpia_data = cpia_data %>% 
   select(
@@ -39,12 +39,12 @@ cpia_data = cpia_data %>%
 cpia_data <- spread(cpia_data, Series, Value)
 ```
 
-Left Join
+Joining the data together by Country and the Year
 ```{r}
-Clean_data = inner_join(cpia_data, world_bank_indicators)
+Clean_data = right_join(cpia_data, world_bank_indicators)
 ```
 
-Convert into table
+Selecting and renaming the variavles that we want to keep
 ```{r}
 Clean_data = Clean_data %>%
   mutate(
@@ -118,7 +118,7 @@ Clean_data = Clean_data %>%
   )
 ```
 
-Create GDP Growth
+Creating the new variable of GDP growth and dropping NA's
 ```{r}
 Clean_data = Clean_data %>%
 group_by(Country) %>%
@@ -129,7 +129,7 @@ Clean_data = Clean_data %>%
   mutate(GDP_growth = ((Future_GDP - GDP)/GDP)*100)
 ```
 
-Savings clean data
+Saving the clean and combined data as an RDs and CSV
 ```{r}
 Clean_data %>% 
   write_rds("data/clean_data.Rds") %>% 

@@ -2,11 +2,11 @@
 title: "Explore"
 author: "William Fisher"
 date: "11/11/2019"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, results = TRUE, message = FALSE)
 library(ProjectTemplate)
 load.project()
 library(knitr)
@@ -15,30 +15,43 @@ library(knitr)
 Reading in data
 ```{r}
 Clean_data = read_rds(path = "data/clean_data.Rds")
+
+Clean_data = as.data.frame(Clean_data)
 ```
 
-Drop observations that don't have the variables we want
+Drop observations that don't have missing variables
 ```{r}
 Clean_data = Clean_data %>% 
   drop_na()
 ```
 
-Summary statistics
+Creating a new data set for the summary table, dropping variables that aren't numeric/we're not interested in looking at
 ```{r}
-kable(summary(Clean_data))
+Clean_data_sum = Clean_data %>% 
+  select(GDP_growth, Aid, GDP)
+
+kable(summary(Clean_data_sum))
 ```
 
-Summary Graph - CPIA
+Summary Graph - CPIA (policy ratings), by decade
 ```{r}
+Clean_data = Clean_data %>% 
+  arrange(Year) %>% 
+  mutate(
+    decade = if_else(
+      Year >= 2010, "2010's", "2000's"
+    )
+  )
+
 ggplot(
   data = Clean_data, 
   mapping = aes(
-    x = CPIA_Mean
+    x = CPIA_Mean, fill = decade
   )
 ) +
   geom_histogram(binwidth = 0.2) +
   theme_minimal() +
-  labs(title = "Histogram of mean CPIA ratings") +
+  labs(title = "Histogram of mean CPIA ratings, by decade") +
   xlab("CPIA mean") +
   ylab("Obervations")
 
@@ -48,7 +61,7 @@ ggsave(filename = "graphs/mean_CPIA.png",
        width = 8)
 ```
 
-CPIA over time
+CPIA over time, by Country
 ```{r}
 ggplot(
   data = Clean_data, 
@@ -57,9 +70,9 @@ ggplot(
   )
 ) +
   geom_smooth() +
-  geom_jitter(mapping = aes(colour = Country)) +
+  geom_line(mapping = aes(colour = Country)) +
   theme_minimal() +
-  labs(title = "Mean CPIA ratings, over time") +
+  labs(title = "Mean CPIA ratings over time, by Country") +
   xlab("Year") +
   ylab("Mean of CPIA")
 
@@ -69,7 +82,7 @@ ggsave(filename = "graphs/mean_CPIA_over_time.png",
        width = 8)
 ```
 
-Summary Graph - GDP
+GDP per capita over time
 ```{r}
 ggplot(
   data = Clean_data, 
@@ -78,9 +91,8 @@ ggplot(
   )
 ) +
   geom_smooth() +
-  geom_jitter(mapping = aes(colour = Country)) +
   theme_minimal() +
-  labs(title = "GDP pc over time") +
+  labs(title = "GDP pc over time, overall") +
   xlab("Year") +
   ylab("GDP per capita")
 
@@ -90,7 +102,7 @@ ggsave(filename = "graphs/GDP_over_time.png",
        width = 8)
 ```
 
-Summary Graph - GDP
+GDP PC vs Aid they recieve, aid is going to the countries that deserve it
 ```{r}
 ggplot(
   data = Clean_data, 
@@ -101,7 +113,7 @@ ggplot(
   geom_jitter(mapping = aes(colour = Country)) +
   geom_smooth() +
   theme_minimal() +
-  labs(title = "Aid against GDP") +
+  labs(title = "Aid goes to the Countries that need it, Aid vs GDP pc") +
   xlab("Aid") +
   ylab("GDP")
 
@@ -111,7 +123,7 @@ ggsave(filename = "graphs/aid_vs_gdp.png",
        width = 8)
 ```
 
-Summary Graph - GDP
+GDP growth against Aid, is Aid leading to growth?
 ```{r}
 ggplot(
   data = Clean_data, 
@@ -122,7 +134,7 @@ ggplot(
   geom_jitter(mapping = aes(colour = Country)) +
   geom_smooth() +
   theme_minimal() +
-  labs(title = "Aid against GDP") +
+  labs(title = "Is aid helping, Aid against GDP growth") +
   xlab("Log Aid") +
   ylab("Log GDP Growth")
 
